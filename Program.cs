@@ -1,12 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Reflection;
 
 namespace Test
 {
-    class Person
+    class Person : IEquatable<Person>
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -18,21 +19,33 @@ namespace Test
             this.LastName = LastName;
             this.Address = Address;
         }
-        public override string ToString()
+        public override bool Equals(object obj)
         {
-            return String.Format("\nFirstName: {0}\nLastName: {1}\n{2}",
-                this.FirstName, this.LastName, this.Address);
+            return this.Equals(obj as Person);
+        }
+        public bool Equals(Person other)
+        {
+            if (other == null)
+                return false;
+            return
+                (
+                object.ReferenceEquals(this.FirstName, other.FirstName) ||
+                this.FirstName != null &&
+                this.FirstName.Equals(other.FirstName)
+                ) &&
+                (
+                object.ReferenceEquals(this.LastName, other.LastName) ||
+                this.LastName != null &&
+                this.LastName.Equals(other.LastName)
+                ) &&
+                (
+                object.ReferenceEquals(this.Address, other.Address) ||
+                this.Address != null &&
+                this.Address.Equals(other.Address)
+                );
         }
     }
-    class PersonComparer : IComparer<Person>
-    {
-        public int Compare(Person first, Person second)
-        {
-            string.Compare(first.FirstName, second.FirstName);
-            string.Compare(first.LastName, second.LastName);
-        }
-    }
-    class Address
+    class Address : IEquatable<Address>
     {
         public string City { get; set; }
         public string Street { get; set; }
@@ -44,22 +57,25 @@ namespace Test
             this.Street = Street;
             this.House = House;
         }
-        public override string ToString()
+        public override bool Equals(object obj)
         {
-            return String.Format("Address.City: {0}\nAddress.Street: {1}\nAddress.House: {2}",
-                this.City, this.Street, this.House);
+            return this.Equals(obj as Address);
         }
-    }
-    class AddressComparer : IComparer<Address>
-    {
-        public int Compare(Address first, Address second)
+        public bool Equals(Address other)
         {
-            string.Compare(first.City, second.City);
-            string.Compare(first.Street, second.Street);
-            if (first.House != second.House)
-                return 1;
-            else
-                return 0;
+            if (other == null)
+                return false;
+            return this.House.Equals(other.House) &&
+                (
+                object.ReferenceEquals(this.Street, other.Street) ||
+                this.Street != null &&
+                this.Street.Equals(other.Street)
+                ) &&
+                (
+                object.ReferenceEquals(this.City, other.City) ||
+                this.City != null &&
+                this.City.Equals(other.City)
+                );
         }
     }
     class Program
@@ -95,8 +111,27 @@ namespace Test
 
             //var differences = comparer.Compare<Person>(first, second);
             Console.WriteLine("Путь\t\t First\t\t Second");
-            Console.WriteLine(first);
-            Console.WriteLine(second);
+           
+            if (first.FirstName.Equals(second.FirstName) == false)
+            {
+                Console.WriteLine("FirstName" + "\t\t" + first.FirstName + "\t\t" + second.FirstName);
+            }
+            if (first.LastName.Equals(second.LastName) == false)
+            {
+                Console.WriteLine("LastName" + "\t\t" + first.LastName + "\t\t" + second.LastName);
+            }
+            if (first.Address.City.Equals(second.Address.City) == false)
+            {
+                Console.WriteLine("AddressCity" + "\t\t" + first.Address.City + "\t\t" + second.Address.City);
+            }
+            if (first.Address.Street.Equals(second.Address.Street) == false)
+            {
+                Console.WriteLine("AddressStreet" + "\t\t" + first.Address.Street + "\t\t" + second.Address.Street);
+            }
+            if (first.Address.House.Equals(second.Address.House) == false)
+            {
+                Console.WriteLine("AddressHouse" + "\t\t" + first.Address.House + "\t\t" + second.Address.House);
+            }
 
             Console.ReadLine();
         }
